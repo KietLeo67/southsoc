@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kiểm tra mã IMEI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        .card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 350px;
+        }
+
+        .logo {
+            width: 300px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 1.5em;
+            margin: 10px 0;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-size: 1.2em;
+        }
+
+        input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1.1em;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #fff;
+            border: 2px solid #000;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            font-size: 1.5em;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <img src="SPX_Orange%20Logo.jpg" alt="SPX Express Logo" class="logo">
+        <h1>Kiểm tra mã IMEI</h1>
+        <label for="imei-input">Nhập mã IMEI:</label>
+        <input type="text" id="imei-input" placeholder="Nhập mã IMEI" />
+        <button onclick="checkIMEI()">Kiểm tra</button>
+    </div>
+
+    <div id="popup"></div>
+
+    <script>
+        function checkIMEI() {
+            var imei = document.getElementById('imei-input').value;
+            fetch('http://127.0.0.1:5000/check_imei', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ imei: imei })
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    return response.json().then(data => {
+                        showPopup(data.message, 'green');
+                    });
+                } else {
+                    return response.json().then(data => {
+                        showPopup(data.message, 'red');
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showPopup('Có lỗi xảy ra: ' + error.message, 'red');
+            })
+            .finally(() => {
+                document.getElementById('imei-input').value = '';
+            });
+        }
+
+        function showPopup(message, color) {
+            var popup = document.getElementById('popup');
+            popup.style.display = 'block';
+            popup.style.color = '#fff';
+            popup.style.backgroundColor = color;
+            popup.innerHTML = message;
+            setTimeout(function() {
+                popup.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
